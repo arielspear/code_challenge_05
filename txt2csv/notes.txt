@@ -1,0 +1,7 @@
+review the Thor gems docs
+  -file names inputs
+
+in file io docs
+  what method opens/reads a file
+
+try to create a dting that prints to screen using variable/params I provide
