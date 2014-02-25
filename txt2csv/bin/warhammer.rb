@@ -13,7 +13,7 @@ class WarHammer < Thor
 
   desc "Takes raw data, cleans and puts into CSV"
   def convert(prefix, suffix, input, output)
-    puts "ruby lib/parse.rb <input >#file.path{output}"
+    puts "ruby lib/parse.rb <input >file #{output}"
     # `ruby lib/parse.rb <input >output`
   end
 

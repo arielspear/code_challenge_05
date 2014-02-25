@@ -1,5 +1,39 @@
 #!/usr/bin/env ruby
+
 # this first line is how the operating system knows to use ruby to execute this file
 # use chmod oug+x txt2csv to make sure the file is executable
 
-puts "This is where txt2csv will be invoked from the command line."
+#demand that the file uses the Thor gem
+require 'thor'
+#use other files
+require_relative '../lib/analyze.rb'
+require_relative '../lib/parse.rb'
+
+#give this class the power of Thor
+class TextToCSV <Thor
+  #awesome options availible to all the methods. Calling them on the command line with -i and -o.
+  class_option :i, :banner => 'input'
+  class_option :o, :banner => 'output'
+
+  desc 'analyze', 'takes input and analyzes it makes a histogram of the prefixes or suffixes'
+  def analyze
+    input = options[:i]
+    output = options[:o]
+    operation = Analyze.new(input, output)
+  end
+
+
+
+end
+#instancieates the class
+TextToCSV.start
+
+# Get the input filename from the command line interface, and open the file for reading
+# Get the output filename from the command line interface and open a histogram file for writing
+# Get the prefix or suffix suffix option from the command line interface
+# For each line in the incoming file,
+#   Split the line on tabs
+#   Hand the name field to the analyze method
+#   collect the reverse-sorted histogram returned from the method
+#   output the histogram to the output file.
+# Close all open files
