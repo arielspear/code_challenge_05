@@ -8,6 +8,7 @@ require 'thor'
 #use other files
 require_relative '../lib/analyze.rb'
 require_relative '../lib/parse.rb'
+require_relative '../lib/convert.rb'
 
 #give this class the power of Thor
 class TextToCSV <Thor
@@ -15,25 +16,45 @@ class TextToCSV <Thor
   class_option :i, :banner => 'input'
   class_option :o, :banner => 'output'
 
+  option :name_prefix, :aliases => :p, :banner => 'prefixes', :type => :boolean
+  option :name_suffix, :aliases => :s, :banner => 'suffixes', :type => :boolean
   desc 'analyze', 'takes input and analyzes it makes a histogram of the prefixes or suffixes'
   def analyze
     input = options[:i]
     output = options[:o]
-    operation = Analyze.new(input, output)
+    pattern_select = '-p' if options[:name_prefix]
+    pattern_select = '-s' if options[:name_suffix]
+
+    #instanciates analyze.rb and sets operation to it
+    operation = Analyze.new(input, output, pattern_select)
+    operation.histo_maker
   end
 
+  option :name_prefix, :aliases => :p, :banner => 'prefixes', :type => :boolean
+  option :name_suffix, :aliases => :s, :banner => 'suffixes', :type => :boolean
+  desc 'convert', 'converts input data into something'
+  def convert
+    input = options[:i]
+    output = options[:o]
+    prefix = options[:p]
+    suffix = options [:s]
+    fileize = Convert.new(input, output, prefix, suffix)
+  end
 
+  # Get the input filename from the command line interface, and open the file for reading
+# Get the prefix and suffix histogram files from the command line interface and open them.
+# Read the histogram files to create prefix and suffix words arrays.
+#
+# Get the output filename from the command line interface and open a CSV file for writing
+# Write the column headers to the file
+# For each line in the incoming file,
+#   Split the line on tabs,
+#   Hand each field to the appropriate method. Use the word arrays for the name parser.
+#   collect the arrays returned from the methods
+#   output the concatenated arrays as a string to the CSV file
+# Close all open files
 
 end
 #instancieates the class
 TextToCSV.start
 
-# Get the input filename from the command line interface, and open the file for reading
-# Get the output filename from the command line interface and open a histogram file for writing
-# Get the prefix or suffix suffix option from the command line interface
-# For each line in the incoming file,
-#   Split the line on tabs
-#   Hand the name field to the analyze method
-#   collect the reverse-sorted histogram returned from the method
-#   output the histogram to the output file.
-# Close all open files

@@ -1,37 +1,44 @@
 #! /usr/bin/env ruby
+
+# sets variables and grabs first or last word depending on commands
 class Analyze
-  def initialize(inputfile, outputfile)
-    @input = inputfile
-    @output = outputfile
+  def initialize(inputfile, outputfile, pattern_select)
+    @input = File.new(inputfile, 'r')
+    @output = File.new(outputfile, 'w')
+    @pattern_select = pattern_select
   end
 
-  case ARGV[0]
-  # This script takes a required option
-  #  -p : find and sort prefixes by frequency of occurances
-  #  -s : find and sort suffixes by frequency of occurances
-  #
-  # It reads a text file from STDIN
-  # It writes the resulting histogram to STDOUT
-    when '-p'
-      regular_expression = /^\S*/
-    when '-s'
-      regular_expression = /\S*$/
-    else
-      puts "unknown option"
-      puts "usage: analyze.rb -p | -s < input_file > output_file"
-      exit
+  def pattern
+      # looks at @pattern_select
+      case @pattern_select
+          # if pattern == p, sets sorter to first word
+        when '-p'
+          sorter = /^\S*/
+      # if pattern == s, sets sorter to last word
+        when '-s'
+          sorter = /\S*$/
+      end
+    return sorter
   end
 
-  ARGV.clear # throw away option so we can get to STDIN
+  def histo_maker
+    # instanciates histogram
+    histogram = Hash.new(0)
+    sorter = pattern
+    # for each input compair the line to the sorter,
+    # if they match add 1 to the histogram
+    @input.each_line do |line|
+      # makes array of each line with 4 parts
+      histo_array = line.split("\t")
+      # declares the first part of the array as part_of_name
+      part_of_name = histo_array[0].to_s
+      # sets word as the match of the regex pattern on the name element
+      word = sorter.match(part_of_name).to_s
+      # adds to count of histogram
+      histogram[word.to_sym] += 1
+    end
 
-  histogram = Hash.new(0)
-
-  while line = gets
-    word = regular_expression.match(line).to_s
-    histogram[word.to_sym] += 1
+    histogram = Hash[histogram.sort_by { |word, count| count }.reverse]
+    histogram.each { |word, count| @output.puts "#{word} #{count}" }
   end
-
-  histogram = Hash[ histogram.sort_by { |word, count| count }.reverse]
-  histogram.each { |word, count| puts "#{word} #{count}" }
-
 end
